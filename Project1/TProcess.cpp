@@ -10,7 +10,7 @@ TProcess::TProcess()
 {
 }
 
-BOOL setAdjustPrivileges(HANDLE token, LPCSTR priv_name, BOOL enablePriv)
+BOOL TProcess::setAdjustPrivileges(HANDLE token, LPCSTR priv_name, BOOL enablePriv)
 {
     TOKEN_PRIVILEGES tp;
     LUID lu;
@@ -30,7 +30,7 @@ BOOL setAdjustPrivileges(HANDLE token, LPCSTR priv_name, BOOL enablePriv)
     } else {
         tp.Privileges[0].Attributes = 0;
     }
-    if (!AdjustTokenPrivileges(token, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), (PTOKEN_PRIVILEGES)NULL, (PDWORD)NULL)) {
+    if (!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), (PTOKEN_PRIVILEGES)NULL, (PDWORD)NULL)) {
         printf("AdjustPrivileges error: %u\r\n", GetLastError());
         return FALSE;
     }
@@ -41,10 +41,10 @@ BOOL setAdjustPrivileges(HANDLE token, LPCSTR priv_name, BOOL enablePriv)
     return TRUE;
 }
 
-uint32_t TProcess::findProcessByName(const char *name, bool case_insens)
+DWORD TProcess::findProcessByName(CCHAR *name, BOOL case_insens)
 {
-    uint32_t found_prc = 0;
-    std::map<std::string, int> prc = enumProcess();
+    DWORD found_prc = 0;
+    std::map<std::string, DWORD> prc = enumProcess();
     for (auto it : prc) {
         std::string tmp1(it.first);
         std::string tmp2(name);
@@ -62,10 +62,10 @@ uint32_t TProcess::findProcessByName(const char *name, bool case_insens)
     return found_prc;
 }
 
-std::string TProcess::findProcessByID(uint32_t ID)
+std::string TProcess::findProcessByID(DWORD ID)
 {
     std::string found_prc;
-    std::map<std::string, int> prc = enumProcess();
+    std::map<std::string, DWORD> prc = enumProcess();
     for (auto it : prc) {
         if (it.second == ID) {
             found_prc = it.first;
@@ -75,11 +75,11 @@ std::string TProcess::findProcessByID(uint32_t ID)
     return found_prc;
 }
 
-std::map<std::string, int> TProcess::enumProcess()
+std::map<std::string, DWORD> TProcess::enumProcess()
 {
     HANDLE hSnapshot;
     PROCESSENTRY32 Entry;
-    std::map<std::string, int> processes;
+    std::map<std::string, DWORD> processes;
 
     hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE) {

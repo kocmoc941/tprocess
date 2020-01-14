@@ -2,14 +2,15 @@
 
 
 #include <map>
-#include <stdint.h>
+#include <windows.h>
 
 class TProcess {
 	public:
 		TProcess();
         TProcess(const TProcess&) = default;
-        uint32_t findProcessByName(const char *name, bool case_insens = 0);
-        std::string findProcessByID(uint32_t ID);
-        std::map<std::string, int> enumProcess();
+        DWORD findProcessByName(CCHAR *name, BOOL case_insens = 0);
+        std::string findProcessByID(DWORD ID);
+        std::map<std::string, DWORD> enumProcess();
+        BOOL setAdjustPrivileges(HANDLE token, LPCSTR priv_name, BOOL enablePriv);
     private:
 };
