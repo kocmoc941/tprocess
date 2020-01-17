@@ -42,14 +42,14 @@ int main()
     }
 
     con.setScreenColor(COLOR_INTENSITY, MODE_ALL_TEXT);
-    DWORD hacker = proc.findProcessByName("project", 1);
+    DWORD hacker = proc.findProcessByName("notepad", 0);
     con.printf("FOUNDED by name\r\n%u\r\n", hacker);
     con.printf("FOUNDED by id\r\n%s\r\n", proc.findProcessByID(0).c_str());
     con.setScreenColor(COLOR_G, MODE_ALL_TEXT);
 
     proc.setAdjustPrivileges(NULL, SE_DEBUG_NAME, TRUE);
     HANDLE po = OpenProcess(PROCESS_ALL_ACCESS, 0, hacker);
-    MODULEINFO mi;
+    //MODULEINFO mi;
     HMODULE mods[1024];
     DWORD cb;
     EnumProcessModules(po, mods, sizeof(HMODULE), &cb);
@@ -58,7 +58,7 @@ int main()
         char mname[MAX_PATH]{};
         GetModuleFileNameEx(po, mods[i], mname, MAX_PATH);
         if(*mname && mods[i]) {
-            con.printf("handle:%08X info %s\n", mods[i], mname);
+            //con.printf("handle:%08X info %s\n", mods[i], mname);
         }
     }
 
