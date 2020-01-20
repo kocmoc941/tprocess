@@ -1,6 +1,7 @@
-#include <stdio.h>
-
 #include "tconsole.h"
+
+#include <stdio.h>
+#include <strsafe.h>
 
 TConsole::TConsole()
 {
@@ -94,4 +95,33 @@ void TConsole::setCodePage(uint32_t CP)
 {
     SetConsoleCP(CP);
     SetConsoleOutputCP(CP);
+}
+
+
+void TConsole::printGetLastError(LPCSTR fName)
+{
+    LPVOID lpMsgBuf;
+    LPVOID lpDisplayBuf;
+    DWORD dw = GetLastError();
+
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),
+        (LPTSTR)&lpMsgBuf,
+        0, NULL);
+
+    lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+        (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)fName) + 40) * sizeof(TCHAR));
+    StringCchPrintf((LPTSTR)lpDisplayBuf,
+        LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+        TEXT("%s failed with error %d: %s"),
+        fName, dw, lpMsgBuf);
+    printf("%s\r\n", (LPCTSTR)lpDisplayBuf);
+
+    LocalFree(lpMsgBuf);
+    LocalFree(lpDisplayBuf);
 }

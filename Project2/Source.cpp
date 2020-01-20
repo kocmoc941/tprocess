@@ -5,11 +5,11 @@ BOOL WINAPI DllMain(HINSTANCE app, DWORD reas, LPVOID res)
 {
     switch (reas) {
     case DLL_PROCESS_ATTACH: {
-            MessageBoxA(NULL, "DLL", "process attach", MB_OK);
+            MessageBoxA(NULL, "process attached", "DLL", MB_OK);
             break;
         }
         case DLL_PROCESS_DETACH: {
-            MessageBoxA(NULL, "DLL", "process detach", MB_OK);
+            MessageBoxA(NULL, "process detached", "DLL", MB_OK);
             break;
         }
         case DLL_THREAD_ATTACH:

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <functional>
 #include <psapi.h>
+#include <sys/stat.h>
 
 #pragma comment(lib, "Psapi.lib")
 
@@ -41,14 +42,61 @@ int main()
         con.printf("%s %u\r\n", vit->first.c_str(), vit->second);
     }
 
+    char *pName = "notepad";
+
     con.setScreenColor(COLOR_INTENSITY, MODE_ALL_TEXT);
-    DWORD hacker = proc.findProcessByName("notepad", 0);
-    con.printf("FOUNDED by name\r\n%u\r\n", hacker);
-    con.printf("FOUNDED by id\r\n%s\r\n", proc.findProcessByID(0).c_str());
+    DWORD hacker = proc.findProcessByName(pName, 1);
+    con.printf("FOUNDED %s by name\r\n%u\r\n", pName, hacker);
+    con.printf("FOUNDED %s by id\r\n%s\r\n", pName, proc.findProcessByID(hacker).c_str());
     con.setScreenColor(COLOR_G, MODE_ALL_TEXT);
 
     proc.setAdjustPrivileges(NULL, SE_DEBUG_NAME, TRUE);
     HANDLE po = OpenProcess(PROCESS_ALL_ACCESS, 0, hacker);
+    char *dll_path = "C:\\Users\\godd\\Documents\\Visual Studio 2015\\Projects\\Project1\\Debug\\Project2.dll";
+    struct stat f;
+    con.printf("DLL IS EXIST: %s\r\n", !stat(dll_path, &f) ? "TRUE" : "FALSE");
+
+    DWORD dll_size = strlen(dll_path) + 1;
+    LPVOID dll_addr = VirtualAllocEx(po, NULL, dll_size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+    if (!dll_addr) {
+        con.printf("error alloc for dll path\r\n");
+        return -1;
+    }
+    else {
+        con.printf("VirtualAllocEx ok\r\n");
+    }
+    SIZE_T written = 0;
+    BOOL writeOk = WriteProcessMemory(po, dll_addr, dll_path, dll_size, &written);
+    if (!writeOk) {
+        con.printf("error WriteProcessMemory for dll path\r\n");
+        return -1;
+    }
+    else {
+        con.printf("WriteProcessMemory ok written(%u)\r\n", written);
+    }
+
+    written = 0;
+    LPTHREAD_START_ROUTINE addrLoadLibrary = (LPTHREAD_START_ROUTINE)GetProcAddress(LoadLibrary("kernel32"), "LoadLibraryA");
+    if (!addrLoadLibrary) {
+        con.printf("error addrLoadLibrary for inject dll\r\n");
+        return -1;
+    }
+    else {
+        con.printf("addrLoadLibrary ok %08X\r\n", addrLoadLibrary);
+    }
+
+    HANDLE thread_proc = CreateRemoteThread(po, NULL, 0, addrLoadLibrary, dll_addr, 0, &written);
+    if (!thread_proc) {
+        con.printf("error CreateRemoteThread for inject dll\r\n");
+        con.printGetLastError("CreateRemoteThread");
+        return -1;
+    }
+    else {
+        con.printf("CreateRemoteThread ok\r\n");
+    }
+    con.printf("Inject ok\r\n");
+
     //MODULEINFO mi;
     HMODULE mods[1024];
     DWORD cb;

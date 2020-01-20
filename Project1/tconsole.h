@@ -31,6 +31,7 @@ public:
     void printf(const char *fmt, ...);
     void setCodePage(uint32_t CP);
     void setCursorPos(uint16_t x, uint16_t y);
+    void printGetLastError(LPCSTR fName);
 
 private:
     HANDLE m_outHandle = NULL;
