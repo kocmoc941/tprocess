@@ -1,0 +1,9 @@
+LIBRARY     HelloExtNoAtl
+
+DESCRIPTION "HelloExtNoAtl"
+
+EXPORTS
+   DllCanUnloadNow   PRIVATE
+   DllGetClassObject PRIVATE
+   DllRegisterServer PRIVATE
+   DllUnregisterServer PRIVATE 
