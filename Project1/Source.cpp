@@ -11,7 +11,7 @@
 
 #pragma comment(lib, "Psapi.lib")
 
-int main()
+int main(int argc, char **argv, char **arge)
 {
     TConsole con;
 
@@ -42,7 +42,7 @@ int main()
         con.printf("%s %u\r\n", vit->first.c_str(), vit->second);
     }
 
-    char *pName = "notepad";
+    char *pName = "explorer";
 
     con.setScreenColor(COLOR_INTENSITY, MODE_ALL_TEXT);
     DWORD hacker = proc.findProcessByName(pName, 1);
